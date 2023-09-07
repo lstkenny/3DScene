@@ -61,7 +61,8 @@ export default class Object3d {
 	}
 	restore() {
 		for (let i = 0; i < this.saved.length; i++) {
-			this.vertices[i] = VecMath.clone(this.saved[i])
+			// do not override "this.vertices" elements, because they can be used as references
+			VecMath.update(this.vertices[i], this.saved[i])
 		}
 	}
 	getIdentityMatrix() {
@@ -126,7 +127,8 @@ export default class Object3d {
 			transformMatrix = VecMath.multMatrixMatrix(transformMatrix, this.getTranslationMatrix(this.pos))
 		}
 		for (let i = 0; i < this.saved.length; i++) {
-			this.vertices[i] = VecMath.multVecMatrix(this.saved[i], transformMatrix)
+			// do not override "this.vertices" elements, because they can be used as references
+			VecMath.update(this.vertices[i], VecMath.multVecMatrix(this.saved[i], transformMatrix))
 		}
 	}
 }

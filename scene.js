@@ -25,37 +25,37 @@ class Scene {
 		this.controls.keyDown(key => {
 			switch(key) {
 				case "KeyA":
-					this.model.pos.x -= 0.1
+					this.camera.pos.x -= 0.1
 					break
 				case "KeyD":
-					this.model.pos.x += 0.1
+					this.camera.pos.x += 0.1
 					break
 				case "KeyW":
-					this.model.pos.z += 0.1
+					this.camera.pos.z += 0.1
 					break
 				case "KeyS":
-					this.model.pos.z -= 0.1
+					this.camera.pos.z -= 0.1
 					break
 				case "Numpad8":
-					this.model.aspeed.x -= Math.PI / 1080
+					this.models.forEach(model => model.aspeed.x -= Math.PI / 1080)
 					break
 				case "Numpad2":
-					this.model.aspeed.x += Math.PI / 1080
+					this.models.forEach(model => model.aspeed.x += Math.PI / 1080)
 					break
 				case "Numpad4":
-					this.model.aspeed.y += Math.PI / 1080
+					this.models.forEach(model => model.aspeed.y += Math.PI / 1080)
 					break
 				case "Numpad6":
-					this.model.aspeed.y -= Math.PI / 1080
+					this.models.forEach(model => model.aspeed.y -= Math.PI / 1080)
 					break
 				case "Numpad7":
-					this.model.aspeed.z += Math.PI / 1080
+					this.models.forEach(model => model.aspeed.z += Math.PI / 1080)
 					break
 				case "Numpad9":
-					this.model.aspeed.z -= Math.PI / 1080
+					this.models.forEach(model => model.aspeed.z -= Math.PI / 1080)
 					break
 				case "Numpad5": 
-					this.model.aspeed = new Vec3d()
+					this.models.forEach(model => model.aspeed = new Vec3d())
 					break
 				case "Space":
 					this.loop.frameId ? this.loop.stop() : this.loop.start()
@@ -63,9 +63,11 @@ class Scene {
 			}
 		})
 		this.controls.swipe(pos => {
-			this.model.angle.x = pos.x * Math.PI / 180
-			this.model.angle.y = pos.y * Math.PI / 180
-			this.model.aspeed = VecMath.mult(new Vec3d(pos.x, pos.y, 0), Math.PI / (this.camera.width * 2))
+			this.models.forEach(model => {
+				model.angle.x = pos.x * Math.PI / 180
+				model.angle.y = pos.y * Math.PI / 180
+				model.aspeed = VecMath.mult(new Vec3d(pos.x, pos.y, 0), Math.PI / (this.camera.width * 2))
+			})
 		})
 	}
 	createLoop() {
@@ -101,6 +103,7 @@ class Scene {
 		model.aspeed = new Vec3d(Math.PI / 180, Math.PI / 360, Math.PI / 540)
 		// model.size = new Vec3d(1, 1, 1)
 		this.models.push(model)
+		this.camera.add(model)
 	}
 	async setup() {
 		const models = [
@@ -126,7 +129,6 @@ class Scene {
 			model.angle = VecMath.add(model.angle, model.aspeed)
 			// model.size = VecMath.mult(new Vec3d(1, 1, 1), Math.sin(tick * 0.01) + 1)
 			model.update()
-			this.camera.add(model)
 		}
 		this.camera.project()
 		setTiming("calculation")

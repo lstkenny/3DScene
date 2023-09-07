@@ -4,6 +4,11 @@ export default class VecMath {
 		y: vec.y,
 		z: vec.z,
 	})
+	static update = (vec1, vec2) => {
+		vec1.x = vec2.x
+		vec1.y = vec2.y
+		vec1.z = vec2.z
+	}
 	static add = (vec1, vec2) => ({
 		x: vec1.x + vec2.x,
 		y: vec1.y + vec2.y,
@@ -53,8 +58,7 @@ export default class VecMath {
 	})
 	static dotProject = (vec1, vec2) => this.dot(vec1, vec2) / this.len(vec2)
 	static resize = (vec, scalar) => this.mult(vec, scalar / this.len(vec))
-	static mag = vec => this.div(vec, this.len(vec))
-	static normal = this.mag
+	static normal = vec => this.div(vec, this.len(vec))
 	static inverse = vec => this.mult(vec, -1)
 	static createMatrix = (rows, cols, value = 0) => {
 		return Array.from(Array(rows), _ => Array(cols).fill(value))

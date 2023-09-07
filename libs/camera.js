@@ -11,6 +11,10 @@ export default class Camera {
 			fov: 90,
 			maxDist: 1000,
 			minDist: 0.1,
+			vertices: [],
+			projected: [],
+			polygons: [],
+			info: {},
 		}, options)
 		this.createCanvas()
 		this.createProjectionMatrix()
@@ -39,7 +43,7 @@ export default class Camera {
 		// add vertices to the camera
 		const vi = this.vertices.length
 		for (let i = 0; i < model.vertices.length; i++) {
-			this.vertices[i + vi] = VecMath.clone(model.vertices[i])
+			this.vertices[i + vi] = model.vertices[i]
 		}
 		// add polygons to the camera
 		const pi = this.polygons.length
@@ -78,16 +82,14 @@ export default class Camera {
 		})
 		// project vertices to 2d plane
 		for (let i = 0; i < this.vertices.length; i++) {
-			let vertex = this.vertices[i]
+			let vertex = VecMath.clone(this.vertices[i])
 			vertex = VecMath.multVecMatrix(vertex, this.pm)
 			vertex = VecMath.add(vertex, new Vec3d(1, 1))
 			vertex = VecMath.scale(vertex, new Vec3d(this.width / 2, this.height / 2))
-			this.vertices[i] = vertex
+			this.projected[i] = vertex
 		}
 	}
 	clear() {
-		this.polygons = []
-		this.vertices = []
 		this.ctx.fillStyle = "black"
 		this.ctx.fillRect(0, 0, this.width, this.height)
 	}
@@ -100,28 +102,31 @@ export default class Camera {
 		this.ctx.fillText(`fps: ${fps}`, 10, 20)
 		this.ctx.fillText(`vertices: ${this.vertices.length}`, 10, 30)
 		this.ctx.fillText(`polygons: ${this.polygons.length}`, 10, 40)
+		this.ctx.fillText(`visible: ${this.info.visible}`, 10, 50)
 		const keys = Object.keys(window.timings)
 		const total = (window.timings[keys[keys.length - 1]] - window.timings[keys[0]]) || 1
 		for (let i = 1; i < keys.length; i++) {
 			const ms = window.timings[keys[i]] - window.timings[keys[i - 1]]
-			this.ctx.fillText(`${keys[i]}: ${ms} (${Math.round(ms / total * 100)}%)`, 10, 40 + i * 10)
+			this.ctx.fillText(`${keys[i]}: ${ms} (${Math.round(ms / total * 100)}%)`, 10, 50 + i * 10)
 		}
 		this.lastTime = time
 	}
 	render() {
+		this.info.visible = 0
 		for (let i = 0; i < this.polygons.length; i++) {
 			const polygon = this.polygons[i]
 			if (polygon.normal > 0) {
 				// normal
 				continue
 			}
+			this.info.visible++
 			const shade = Math.round((polygon.light + 1) * 255 / 2)
 			const rgb = `rgb(${shade},${shade},${shade})`
 			this.ctx.strokeStyle = rgb
 			this.ctx.fillStyle = rgb
 			this.ctx.beginPath()
 			for (let j = 0; j < polygon.vertices.length; j++) {
-				const vertex = this.vertices[polygon.vertices[j]]
+				const vertex = this.projected[polygon.vertices[j]]
 				if (!vertex) {
 					continue
 				}
