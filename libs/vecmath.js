@@ -64,12 +64,24 @@ export default class VecMath {
 		return Array.from(Array(rows), _ => Array(cols).fill(value))
 	}
 	static multVecMatrix = (vec, matrix) => {
-		const w = (vec.x * matrix[0][3] + vec.y * matrix[1][3] + vec.z * matrix[2][3] + matrix[3][3]) || 1
+		const arr = this.multArrMatrix([vec.x, vec.y, vec.z, 1], matrix)
+		const w = arr[3] || 1
 		return {
-			x: (vec.x * matrix[0][0] + vec.y * matrix[1][0] + vec.z * matrix[2][0] + matrix[3][0]) / w,
-			y: (vec.x * matrix[0][1] + vec.y * matrix[1][1] + vec.z * matrix[2][1] + matrix[3][1]) / w,
-			z: (vec.x * matrix[0][2] + vec.y * matrix[1][2] + vec.z * matrix[2][2] + matrix[3][2]) / w,
+			x: arr[0] / w,
+			y: arr[1] / w,
+			z: arr[2] / w,
 		}
+	}
+	static multArrMatrix = (arr, matrix) => {
+		const len = arr.length
+		const res = []
+		for (let c = 0; c < len; c++) {
+			res[c] = 0
+			for (let r = 0; r < len; r++) {
+				res[c] += arr[r] * matrix[r][c]
+			}
+		}
+		return res
 	}
 	static multMatrixMatrix = (...args) => {
 		const len = args[1].length
